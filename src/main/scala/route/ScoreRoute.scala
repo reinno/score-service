@@ -1,0 +1,6 @@
+package route
+
+
+class ScoreRoute {
+
+}
