@@ -1,6 +1,6 @@
 import sbtassembly.AssemblyPlugin.autoImport._
 
-name := "agodo-assignment"
+name := "agoda-assignment"
 version := "1.0"
 scalaVersion := "2.11.8"
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
