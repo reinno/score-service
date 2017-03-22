@@ -1,10 +1,12 @@
+package com.agoda
+
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import route.ApiRouteService
+import com.agoda.route.ApiRouteService
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

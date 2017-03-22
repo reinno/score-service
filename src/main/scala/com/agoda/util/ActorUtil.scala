@@ -1,4 +1,4 @@
-package util
+package com.agoda.util
 
 import akka.actor.ActorRef
 import akka.pattern.ask

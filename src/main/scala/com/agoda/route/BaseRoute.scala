@@ -1,4 +1,4 @@
-package route
+package com.agoda.route
 
 
 import akka.actor.ActorRef
@@ -8,7 +8,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import akka.util.Timeout
-import util.ActorUtil
+import com.agoda.util.ActorUtil
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}

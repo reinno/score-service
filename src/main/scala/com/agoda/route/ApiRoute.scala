@@ -1,4 +1,4 @@
-package route
+package com.agoda.route
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Route

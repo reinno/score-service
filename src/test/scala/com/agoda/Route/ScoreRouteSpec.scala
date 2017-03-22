@@ -1,10 +1,10 @@
-package Route
+package com.agoda.Route
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.util.ByteString
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
-import route.ApiRouteService
+import com.agoda.route.ApiRouteService
 
 
 class ScoreRouteSpec extends FlatSpec with ScalatestRouteTest with Matchers with BeforeAndAfterAll {

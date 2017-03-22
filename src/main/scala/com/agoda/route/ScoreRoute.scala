@@ -1,6 +1,6 @@
-package route
+package com.agoda.route
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives.{as, complete, entity, pathEndOrSingleSlash, pathPrefix, post}
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer

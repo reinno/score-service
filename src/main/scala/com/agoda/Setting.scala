@@ -1,6 +1,8 @@
-import akka.actor.ActorSystem
+package com.agoda
+
+import akka.actor.{Actor, ActorSystem}
+import com.agoda.model.Rule
 import com.typesafe.config.Config
-import model.Rule
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration.{Duration, SECONDS}
@@ -31,3 +33,10 @@ case class Setting(
   bindPort: Int,
   rules: Map[String, Rule]
 )
+
+trait SettingActor {
+  this: Actor =>
+
+  val settings: Setting =
+    Setting(context.system)
+}
