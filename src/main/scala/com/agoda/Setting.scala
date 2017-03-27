@@ -1,6 +1,7 @@
 package com.agoda
 
 import akka.actor.{Actor, ActorSystem}
+import akka.util.Timeout
 import com.agoda.model.Rule
 import com.typesafe.config.Config
 
@@ -23,6 +24,7 @@ object Setting {
   def apply(system: ActorSystem): Setting = {
     new Setting(system.settings.config.getString("agoda.server.addr"),
       system.settings.config.getInt("agoda.server.port"),
+      Timeout(system.settings.config.getDuration("agoda.server.requestTimeout", SECONDS), SECONDS),
       system.settings.config.getConfigList("agoda.rules").map(getRule).toMap
     )
   }
@@ -31,6 +33,7 @@ object Setting {
 case class Setting(
   bindAddr: String,
   bindPort: Int,
+  requestTimeout: Timeout,
   rules: Map[String, Rule]
 )
 

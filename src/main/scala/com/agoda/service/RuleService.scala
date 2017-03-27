@@ -31,6 +31,7 @@ trait RuleService extends Actor with SettingActor with Stash {
   def getScore(req: ScoreRoute.ScoreRequest): Double
 
   def init: Receive
+
   def running: Receive = runningCommon orElse runningSpecial
   def runningSpecial: Receive = Actor.emptyBehavior
   def runningCommon: Receive = {

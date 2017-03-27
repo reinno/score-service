@@ -2,6 +2,7 @@ package com.agoda.Route
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import akka.testkit.{TestActor, TestProbe}
 import akka.util.ByteString
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import com.agoda.route.ApiRouteService
@@ -9,7 +10,8 @@ import com.agoda.route.ApiRouteService
 
 class ScoreRouteSpec extends FlatSpec with ScalatestRouteTest with Matchers with BeforeAndAfterAll {
 
-  val service = new ApiRouteService()
+  val scoreService = TestProbe()
+  val service = new ApiRouteService(scoreService.ref)
 
   it should "handle single request" in {
     val jsonRequest = ByteString(
