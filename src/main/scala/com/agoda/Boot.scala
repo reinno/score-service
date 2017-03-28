@@ -21,7 +21,7 @@ object Boot extends App {
 
   println(setting)
 
-  val scoreService = system.actorOf(ScoreService.props(), "score-service")
+  val scoreService = system.actorOf(ScoreService.props(setting), "score-service")
   val service = new ApiRouteService(scoreService)
 
 

@@ -31,10 +31,10 @@ object Setting {
 }
 
 case class Setting(
-  bindAddr: String,
-  bindPort: Int,
-  requestTimeout: Timeout,
-  rules: Map[String, Rule]
+  bindAddr: String = "",
+  bindPort: Int = 8080,
+  requestTimeout: Timeout = Timeout(10, SECONDS),
+  rules: Map[String, Rule] = Map.empty
 )
 
 trait SettingActor {

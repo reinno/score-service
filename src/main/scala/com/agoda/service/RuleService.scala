@@ -1,19 +1,23 @@
 package com.agoda.service
 
-import akka.actor.{Actor, ActorRef, Props, Stash}
-import com.agoda.SettingActor
+import akka.actor._
+import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute
+import com.agoda.util.Constants
 
 object RuleService {
   case class GetScoreReq(transaction: List[(ScoreRoute.ScoreRequest, Option[Double])])
   case object Enable
   case object Disable
   case object Start
+  case class Started(name: String)
+  case class StartFailed(name: String)
+  case object Refresh
 
-  def props(name: String, next: Option[ActorRef], enabled: Boolean): Option[Props] = {
-    name match {
-      case "special-country" =>
-        Some(CountryRule.props(next, enabled))
+  def props(rule: Rule, next: Option[ActorRef]): Option[Props] = {
+    rule.name match {
+      case Constants.Rules.countryRule =>
+        Some(CountryRule.props(next, rule))
 
       case _ =>
         None
@@ -21,14 +25,20 @@ object RuleService {
   }
 }
 
-trait RuleService extends Actor with SettingActor with Stash {
+trait RuleService extends Actor with ActorLogging with Stash {
   import RuleService._
+  import context.dispatcher
 
   val next: Option[ActorRef]
-  val name: String
-  var enabled: Boolean
+  val rule: Rule
+  var enabled: Boolean = rule.enabled
 
   def getScore(req: ScoreRoute.ScoreRequest): Double
+  def getRefresh(): Unit
+
+  context.system.scheduler.schedule(rule.refreshInterval,
+    rule.refreshInterval,
+    context.self, Refresh)
 
   def init: Receive
 
@@ -46,6 +56,9 @@ trait RuleService extends Actor with SettingActor with Stash {
       } else {
         sendToNext(req)
       }
+
+    case Refresh =>
+      getRefresh()
 
     case Disable =>
       enabled = false

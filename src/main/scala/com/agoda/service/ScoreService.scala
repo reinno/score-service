@@ -2,7 +2,7 @@ package com.agoda.service
 
 import akka.actor.{Actor, ActorRef, Props, Stash}
 import akka.http.scaladsl.model.StatusCodes
-import com.agoda.SettingActor
+import com.agoda.{Setting, SettingActor}
 import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute
 
@@ -13,15 +13,14 @@ object ScoreService {
   case class Disable(ruleName: String)
   case class GetScoreRequest(requests: List[ScoreRoute.ScoreRequest])
 
-  def props(): Props = {
-    Props(new ScoreService)
+  def props(settings: Setting): Props = {
+    Props(new ScoreService(settings))
   }
 }
 
-class ScoreService extends Actor with Stash with SettingActor {
+class ScoreService(settings: Setting) extends Actor with Stash {
   import ScoreService._
 
-  var rulesToBeStarted: Map[String, Rule] = settings.rules
   var ruleActorHeader: Option[ActorRef] = None
   var ruleActors: Map[String, ActorRef] = Map.empty
 
@@ -29,28 +28,23 @@ class ScoreService extends Actor with Stash with SettingActor {
     self ! Start
   }
 
-  def receive: Receive = init
+  def receive: Receive = init(settings.rules, None)
 
-  def init: Receive = {
+  def init(rulesToBeStarted: Map[String, Rule], lastStarted: Option[ActorRef]): Receive = {
     case Start =>
-      if (rulesToBeStarted.nonEmpty) {
-        val rule = rulesToBeStarted.head._2
-        RuleService.props(rulesToBeStarted.head._1, None, rule.enabled) match {
-          case None =>
-            context become running
-          case Some(props) =>
-            val actor = context.actorOf(props, rule.name)
-            actor ! RuleService.Start
-            context become waitRuleActorStart
-        }
-      }
+      startNewRuleService(rulesToBeStarted, None)
+
+    case RuleService.Started(ruleName) =>
+      if (ruleActorHeader.isEmpty)
+        ruleActorHeader = Some(sender())
+      startNewRuleService(rulesToBeStarted, Some(sender()))
+      ruleActors += (ruleName -> sender())
+
+    case RuleService.StartFailed(ruleName) =>
+      startNewRuleService(rulesToBeStarted, lastStarted)
 
     case _ =>
       stash()
-  }
-
-  def waitRuleActorStart: Receive = {
-    case Start =>
   }
 
   def running: Receive = {
@@ -64,12 +58,10 @@ class ScoreService extends Actor with Stash with SettingActor {
       }
 
     case msg: Enable =>
-      switchRuleActor(msg.ruleName, true)
+      switchRuleActor(msg.ruleName, enable = true)
 
     case msg: Disable =>
-      switchRuleActor(msg.ruleName, false)
-
-    case _ =>
+      switchRuleActor(msg.ruleName, enable = false)
   }
 
   private def switchRuleActor(ruleName: String, enable: Boolean) = {
@@ -82,6 +74,25 @@ class ScoreService extends Actor with Stash with SettingActor {
         sender() ! StatusCodes.OK
       case None =>
         sender() ! StatusCodes.NotFound
+    }
+  }
+
+  private def startNewRuleService(rulesToBeStarted: Map[String, Rule],
+    lastStarted: Option[ActorRef]): Unit = {
+    if (rulesToBeStarted.nonEmpty) {
+      val rule = rulesToBeStarted.head._2
+
+      RuleService.props(rule, lastStarted) match {
+        case None =>
+          startNewRuleService(rulesToBeStarted - rule.name, lastStarted)
+        case Some(props) =>
+          val actor = context.actorOf(props, rule.name)
+          actor ! RuleService.Start
+          context become init(rulesToBeStarted - rule.name, lastStarted)
+      }
+    } else {
+      unstashAll()
+      context become running
     }
   }
 }
