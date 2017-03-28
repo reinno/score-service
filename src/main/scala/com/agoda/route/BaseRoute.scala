@@ -16,42 +16,11 @@ import scala.util.{Failure, Success}
 object BaseRoute {
   case class FailureResponse(code: StatusCode, message: Option[String] = None)
 
-  def askActorRouteOption[T](actor: ActorRef, msg: Any)
-    (implicit exec: ExecutionContext, _marshaller: ToResponseMarshaller[T], timeout: Timeout): Route = {
-    onComplete(ActorUtil.askActor[Option[T]](actor, msg)) {
-      case Success(x) =>
-        x match {
-          case Some(res) => complete(res)
-          case None => complete(HttpResponse(StatusCodes.NotFound))
-        }
-
-      case Failure(ex) =>
-        failWith(ex)
-    }
-  }
-
   def askActorRoute[T](actor: ActorRef, msg: Any)
     (implicit exec: ExecutionContext, _marshaller: ToResponseMarshaller[T], timeout: Timeout): Route = {
     onComplete(ActorUtil.askActor[T](actor, msg)) {
       case Success(x) =>
         complete(x)
-
-      case Failure(ex) =>
-        failWith(ex)
-    }
-  }
-
-  def askActorRouteEither[T](actor: ActorRef, msg: Any)
-    (implicit exec: ExecutionContext, _marshaller: ToResponseMarshaller[T], timeout: Timeout): Route = {
-    onComplete(ActorUtil.askActor[Either[T, FailureResponse]](actor, msg)) {
-      case Success(x) =>
-        x match {
-          case Left(s) =>
-            complete(s)
-
-          case Right(f) =>
-            complete(f.code, f.message)
-        }
 
       case Failure(ex) =>
         failWith(ex)
