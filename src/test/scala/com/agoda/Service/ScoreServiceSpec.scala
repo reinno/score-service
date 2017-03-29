@@ -53,7 +53,7 @@ class ScoreServiceSpec extends BaseServiceHelper.TestSpec {
     val countryRuleName = Constants.Rules.countryRule
     val hotelRuleName = Constants.Rules.hotelRule
 
-    "return single value when single rule enabled" in {
+    "return single value when single rule enabled and matched" in {
       val rules = Map(countryRuleName -> Rule(countryRuleName, 5))
       val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
 
@@ -63,7 +63,17 @@ class ScoreServiceSpec extends BaseServiceHelper.TestSpec {
       system.stop(scoreService)
     }
 
-    "return single value when single rule disabled" in {
+    "return single value when single rule enabled and not matched" in {
+      val rules = Map(countryRuleName -> Rule(countryRuleName, 5))
+      val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
+
+      scoreService ! ScoreService.GetScoreRequest(List(ScoreRoute.ScoreRequest(1, 10)))
+      expectMsg(List(ScoreRoute.ScoreResponse(1, 0)))
+
+      system.stop(scoreService)
+    }
+
+    "return single value when single rule disabled and matched" in {
       val rules = Map(countryRuleName -> Rule(countryRuleName, 5, enabled = false))
       val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
 
@@ -96,13 +106,56 @@ class ScoreServiceSpec extends BaseServiceHelper.TestSpec {
       system.stop(scoreService)
     }
 
+    "Disable rule not known" in {
+      val rules = Map(countryRuleName -> Rule(countryRuleName, 5))
+      val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
 
-    "return max value when multi rule enabled" in {
+      scoreService ! ScoreService.Disable("aaa")
+      expectMsg(StatusCodes.NotFound)
+
+      system.stop(scoreService)
+    }
+
+    "Enable rule not known" in {
+      val rules = Map(countryRuleName -> Rule(countryRuleName, 5))
+      val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
+
+      scoreService ! ScoreService.Enable("aaa")
+      expectMsg(StatusCodes.NotFound)
+
+      system.stop(scoreService)
+    }
+
+
+    "return max value when multi rule enabled and multi matched" in {
       val rules = Map(countryRuleName -> Rule(countryRuleName, 5), hotelRuleName -> Rule(hotelRuleName, 10))
       val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
 
       scoreService ! ScoreService.GetScoreRequest(List(ScoreRoute.ScoreRequest(5, 1)))
       expectMsg(List(ScoreRoute.ScoreResponse(5, 10)))
+
+      system.stop(scoreService)
+    }
+
+
+    "return max value when multi rule enabled and multi matched with one unknown rule" in {
+      val rules = Map(countryRuleName -> Rule(countryRuleName, 5),
+        hotelRuleName -> Rule(hotelRuleName, 10),
+        "aaa" -> Rule("aaa", 20))
+      val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
+
+      scoreService ! ScoreService.GetScoreRequest(List(ScoreRoute.ScoreRequest(5, 1)))
+      expectMsg(List(ScoreRoute.ScoreResponse(5, 10)))
+
+      system.stop(scoreService)
+    }
+
+    "return max value when multi rule enabled single matched" in {
+      val rules = Map(countryRuleName -> Rule(countryRuleName, 5), hotelRuleName -> Rule(hotelRuleName, 10))
+      val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
+
+      scoreService ! ScoreService.GetScoreRequest(List(ScoreRoute.ScoreRequest(2, 1)))
+      expectMsg(List(ScoreRoute.ScoreResponse(2, 5)))
 
       system.stop(scoreService)
     }
