@@ -1,11 +1,33 @@
 package com.agoda.Service
 
+import akka.actor.{ActorRef, Props}
+import akka.pattern.pipe
 import akka.http.scaladsl.model.StatusCodes
 import com.agoda.Setting
 import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute
-import com.agoda.service.ScoreService
+import com.agoda.service.{CountryRule, ScoreService}
 import com.agoda.util.Constants
+
+import scala.concurrent.Future
+
+
+object CountryRuleTestHelper {
+  def props(next: Option[ActorRef], rule: Rule, countryRules: Set[Int] = Set.empty): Props = {
+    Props(new CountryRuleTestHelper(next, rule, countryRules))
+  }
+}
+class CountryRuleTestHelper(
+  override val next: Option[ActorRef],
+  override val rule: Rule,
+  val countryRules: Set[Int])
+  extends CountryRule(next, rule) {
+  import context.dispatcher
+
+  override def getRefresh(): Unit = {
+    Future(CountryRule.Refresh(countryRules)) pipeTo self
+  }
+}
 
 class ScoreServiceSpec extends BaseServiceHelper.TestSpec {
   "Score Service" must {
@@ -29,6 +51,8 @@ class ScoreServiceSpec extends BaseServiceHelper.TestSpec {
     }
 
     val countryRuleName = Constants.Rules.countryRule
+    val hotelRuleName = Constants.Rules.hotelRule
+
     "return single value when single rule enabled" in {
       val rules = Map(countryRuleName -> Rule(countryRuleName, 5))
       val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
@@ -51,7 +75,7 @@ class ScoreServiceSpec extends BaseServiceHelper.TestSpec {
 
 
     "return single value when single rule enable flag switch" in {
-      val rules = Map(countryRuleName -> Rule(countryRuleName, 5, enabled = true))
+      val rules = Map(countryRuleName -> Rule(countryRuleName, 5))
       val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
 
       scoreService ! ScoreService.GetScoreRequest(List(ScoreRoute.ScoreRequest(1, 1)))
@@ -68,6 +92,17 @@ class ScoreServiceSpec extends BaseServiceHelper.TestSpec {
 
       scoreService ! ScoreService.GetScoreRequest(List(ScoreRoute.ScoreRequest(1, 1)))
       expectMsg(List(ScoreRoute.ScoreResponse(1, 5)))
+
+      system.stop(scoreService)
+    }
+
+
+    "return max value when multi rule enabled" in {
+      val rules = Map(countryRuleName -> Rule(countryRuleName, 5), hotelRuleName -> Rule(hotelRuleName, 10))
+      val scoreService = system.actorOf(ScoreService.props(Setting(rules = rules)))
+
+      scoreService ! ScoreService.GetScoreRequest(List(ScoreRoute.ScoreRequest(5, 1)))
+      expectMsg(List(ScoreRoute.ScoreResponse(5, 10)))
 
       system.stop(scoreService)
     }

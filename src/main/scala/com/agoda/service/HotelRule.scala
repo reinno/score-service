@@ -9,22 +9,20 @@ import scala.concurrent.Future
 import scala.concurrent.duration.{Duration, SECONDS}
 
 
-
-
-object CountryRule {
+object HotelRule {
   case class Refresh(value: Set[Int])
   case object Timeout
 
   def props(next: Option[ActorRef], rule: Rule): Props = {
-    Props(new CountryRule(next, rule))
+    Props(new HotelRule(next, rule))
   }
 }
 
-class CountryRule(val next: Option[ActorRef], val rule: Rule) extends RuleService {
-  import CountryRule._
+class HotelRule(val next: Option[ActorRef], val rule: Rule) extends RuleService {
+  import HotelRule._
   import context.dispatcher
 
-  var specialCountries: Set[Int] = Set.empty
+  var specialHotels: Set[Int] = Set.empty
 
   def init: Receive = {
     case RuleService.Start =>
@@ -37,7 +35,7 @@ class CountryRule(val next: Option[ActorRef], val rule: Rule) extends RuleServic
       context stop self
 
     case Refresh(value) =>
-      specialCountries = value
+      specialHotels = value
       context.parent ! RuleService.Started(rule.name)
       context become running
 
@@ -48,19 +46,20 @@ class CountryRule(val next: Option[ActorRef], val rule: Rule) extends RuleServic
 
   override def runningSpecial: Receive = {
     case Refresh(value) =>
-      specialCountries = value
+      specialHotels = value
 
     case msg =>
       log.warning(s"unknown msg: $msg")
   }
 
   override def getScore(req: ScoreRequest): Double = {
-    if (specialCountries.contains(req.countryId)) {
+    if (specialHotels.contains(req.hotelId)) {
       rule.score
     } else 0
   }
 
   override def getRefresh(): Unit = {
-    Future(CountryRule.Refresh(Set(1, 3, 5))) pipeTo self
+    Future(HotelRule.Refresh(Set(5, 7, 9))) pipeTo self
   }
 }
+

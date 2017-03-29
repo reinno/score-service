@@ -19,6 +19,9 @@ object RuleService {
       case Constants.Rules.countryRule =>
         Some(CountryRule.props(next, rule))
 
+      case Constants.Rules.hotelRule =>
+        Some(HotelRule.props(next, rule))
+
       case _ =>
         None
     }

@@ -2,7 +2,7 @@ package com.agoda.service
 
 import akka.actor.{Actor, ActorRef, Props, Stash}
 import akka.http.scaladsl.model.StatusCodes
-import com.agoda.{Setting, SettingActor}
+import com.agoda.Setting
 import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute
 
@@ -35,8 +35,7 @@ class ScoreService(settings: Setting) extends Actor with Stash {
       startNewRuleService(rulesToBeStarted, None)
 
     case RuleService.Started(ruleName) =>
-      if (ruleActorHeader.isEmpty)
-        ruleActorHeader = Some(sender())
+      ruleActorHeader = Some(sender())
       startNewRuleService(rulesToBeStarted, Some(sender()))
       ruleActors += (ruleName -> sender())
 
