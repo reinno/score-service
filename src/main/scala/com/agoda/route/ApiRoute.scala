@@ -12,7 +12,7 @@ trait ApiRoute {
   val scoreService: ActorRef
 
   val scoreRoute = new ScoreRoute(scoreService)
-  val ruleRoute = new RuleRoute(scoreService)
+  val ruleRoute = new DataRoute(scoreService)
   def route: Route = scoreRoute.route ~ ruleRoute.route
 }
 

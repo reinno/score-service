@@ -15,7 +15,8 @@ object Setting {
       name = params.getString("name"),
       score = params.getDouble("score"),
       refreshInterval = Duration(params.getDuration("refreshInterval", SECONDS), SECONDS),
-      enabled = params.getBoolean("enabled")
+      enabled = params.getBoolean("enabled"),
+      endpoint = params.getString("endpoint")
     )
 
     (rule.name, rule)
@@ -25,7 +26,9 @@ object Setting {
     new Setting(system.settings.config.getString("agoda.server.addr"),
       system.settings.config.getInt("agoda.server.port"),
       Timeout(system.settings.config.getDuration("agoda.server.requestTimeout", SECONDS), SECONDS),
-      system.settings.config.getConfigList("agoda.rules").map(getRule).toMap
+      system.settings.config.getConfigList("agoda.rules").map(getRule).toMap,
+      system.settings.config.getIntList("data.countries").map(_.toInt).toList,
+      system.settings.config.getIntList("data.hotels").map(_.toInt).toList
     )
   }
 }
@@ -34,7 +37,9 @@ case class Setting(
   bindAddr: String = "",
   bindPort: Int = 8080,
   requestTimeout: Timeout = Timeout(10, SECONDS),
-  rules: Map[String, Rule] = Map.empty
+  rules: Map[String, Rule] = Map.empty,
+  countryList: List[Int] = Nil,
+  hotelList: List[Int] = Nil
 )
 
 trait SettingActor {

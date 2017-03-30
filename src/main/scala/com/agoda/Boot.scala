@@ -7,7 +7,8 @@ import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.agoda.route.ApiRouteService
-import com.agoda.service.ScoreService
+import com.agoda.service.HttpClientService.HttpClientFactory
+import com.agoda.service.{HttpClientSingle, ScoreService}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -16,6 +17,7 @@ object Boot extends App {
   implicit val system = ActorSystem("agoda-scorer")
   implicit val timeout = Timeout(10.seconds)
   implicit val mat = ActorMaterializer()
+  implicit val httpClientFactory: HttpClientFactory = () => new HttpClientSingle()
 
   val setting = Setting(system)
 

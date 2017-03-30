@@ -1,10 +1,12 @@
 package com.agoda.service
 
-import akka.actor.{Actor, ActorRef, Props, Stash}
+import akka.actor._
 import akka.http.scaladsl.model.StatusCodes
+import akka.stream.Materializer
 import com.agoda.Setting
 import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute
+import com.agoda.service.HttpClientService.HttpClientFactory
 
 
 object ScoreService {
@@ -13,12 +15,14 @@ object ScoreService {
   case class Disable(ruleName: String)
   case class GetScoreRequest(requests: List[ScoreRoute.ScoreRequest])
 
-  def props(settings: Setting): Props = {
+  def props(settings: Setting)
+    (implicit mat: Materializer, httpClientFactory: HttpClientFactory): Props = {
     Props(new ScoreService(settings))
   }
 }
 
-class ScoreService(settings: Setting) extends Actor with Stash {
+class ScoreService(settings: Setting)
+  (implicit mat: Materializer, httpClientFactory: HttpClientFactory) extends Actor with ActorLogging with Stash {
   import ScoreService._
 
   var ruleActorHeader: Option[ActorRef] = None
@@ -42,7 +46,8 @@ class ScoreService(settings: Setting) extends Actor with Stash {
     case RuleService.StartFailed(ruleName) =>
       startNewRuleService(rulesToBeStarted, lastStarted)
 
-    case _ =>
+    case msg =>
+      log.info(s"stash $msg")
       stash()
   }
 

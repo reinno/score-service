@@ -1,8 +1,10 @@
 package com.agoda.service
 
 import akka.actor._
+import akka.stream.Materializer
 import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute
+import com.agoda.service.HttpClientService.HttpClientFactory
 import com.agoda.util.Constants
 
 object RuleService {
@@ -14,7 +16,7 @@ object RuleService {
   case class StartFailed(name: String)
   case object Refresh
 
-  def props(rule: Rule, next: Option[ActorRef]): Option[Props] = {
+  def props(rule: Rule, next: Option[ActorRef])(implicit mat: Materializer, httpClientFactory: HttpClientFactory): Option[Props] = {
     rule.name match {
       case Constants.Rules.countryRule =>
         Some(CountryRule.props(next, rule))
