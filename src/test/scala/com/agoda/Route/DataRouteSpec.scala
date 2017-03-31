@@ -1,10 +1,10 @@
 package com.agoda.Route
 
-import akka.actor.ActorRef
-import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.{HttpEntity, _}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.testkit.TestActor.{AutoPilot, KeepRunning}
 import akka.testkit.TestProbe
+import akka.util.ByteString
+import com.agoda.Setting
 import com.agoda.route.ApiRouteService
 import com.agoda.service.DataService
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
@@ -15,44 +15,80 @@ class DataRouteSpec extends FlatSpec with ScalatestRouteTest with Matchers with 
   implicit val formats = org.json4s.DefaultFormats
   implicit val serialization = org.json4s.jackson.Serialization
 
-  val scoreService = TestProbe()
-  val dataService = TestProbe()
-  val service = new ApiRouteService(scoreService.ref, dataService.ref)
+  val countries = Set(1, 3, 5)
+  val hotels = Set(2, 4, 6)
 
   it should "handle get hotel data" in {
-    val hotels = List(1, 3, 5)
-
-    dataService.setAutoPilot(new AutoPilot {
-      override def run(sender: ActorRef, msg: Any): AutoPilot = {
-        msg match {
-          case DataService.GetHotelList =>
-            sender ! hotels
-            KeepRunning
-        }
-      }
-    })
+    val scoreService = TestProbe()
+    val dataService = system.actorOf(DataService.props(
+      Setting(countries = countries, hotels = hotels)))
+    val service = new ApiRouteService(scoreService.ref, dataService)
 
     Get("/api/v1/data/hotels") ~> service.route ~> check {
-      entityAs[List[Int]] shouldBe hotels
+      entityAs[Set[Int]] shouldBe hotels
       status shouldBe StatusCodes.OK
     }
   }
 
   it should "handle get country data" in {
-    val countries = List(1, 3, 5)
-
-    dataService.setAutoPilot(new AutoPilot {
-      override def run(sender: ActorRef, msg: Any): AutoPilot = {
-        msg match {
-          case DataService.GetCountryList =>
-            sender ! countries
-            KeepRunning
-        }
-      }
-    })
+    val scoreService = TestProbe()
+    val dataService = system.actorOf(DataService.props(
+      Setting(countries = countries, hotels = hotels)))
+    val service = new ApiRouteService(scoreService.ref, dataService)
 
     Get("/api/v1/data/countries") ~> service.route ~> check {
-      entityAs[List[Int]] shouldBe countries
+      entityAs[Set[Int]] shouldBe countries
+      status shouldBe StatusCodes.OK
+    }
+  }
+
+
+  it should "handle set hotel data" in {
+    val scoreService = TestProbe()
+    val dataService = system.actorOf(DataService.props(
+      Setting(countries = countries, hotels = hotels)))
+    val service = new ApiRouteService(scoreService.ref, dataService)
+
+    val newhotels = Set(7, 8, 9)
+
+    val jsonRequest = ByteString("[7, 8, 9]")
+
+    val postRequest = HttpRequest(
+      HttpMethods.POST,
+      uri = "/api/v1/data/hotels",
+      entity = HttpEntity(MediaTypes.`application/json`, jsonRequest))
+
+    postRequest ~> service.route ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    Get("/api/v1/data/hotels") ~> service.route ~> check {
+      entityAs[Set[Int]] shouldBe newhotels
+      status shouldBe StatusCodes.OK
+    }
+  }
+
+  it should "handle set country data" in {
+    val scoreService = TestProbe()
+    val dataService = system.actorOf(DataService.props(
+      Setting(countries = countries, hotels = hotels)))
+    val service = new ApiRouteService(scoreService.ref, dataService)
+
+    val newCountries = Set(7, 8, 9)
+
+    val jsonRequest = ByteString("[7, 8, 9]")
+
+    val postRequest = HttpRequest(
+      HttpMethods.POST,
+      uri = "/api/v1/data/countries",
+      entity = HttpEntity(MediaTypes.`application/json`, jsonRequest))
+
+    postRequest ~> service.route ~> check {
+      status shouldBe StatusCodes.OK
+    }
+
+    Get("/api/v1/data/countries") ~> service.route ~> check {
+      entityAs[Set[Int]] shouldBe newCountries
       status shouldBe StatusCodes.OK
     }
   }

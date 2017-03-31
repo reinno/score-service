@@ -27,8 +27,8 @@ object Setting {
       system.settings.config.getInt("agoda.server.port"),
       Timeout(system.settings.config.getDuration("agoda.server.requestTimeout", SECONDS), SECONDS),
       system.settings.config.getConfigList("agoda.rules").map(getRule).toMap,
-      system.settings.config.getIntList("data.countries").map(_.toInt).toList,
-      system.settings.config.getIntList("data.hotels").map(_.toInt).toList
+      system.settings.config.getIntList("data.countries").map(_.toInt).toSet,
+      system.settings.config.getIntList("data.hotels").map(_.toInt).toSet
     )
   }
 }
@@ -38,8 +38,8 @@ case class Setting(
   bindPort: Int = 8080,
   requestTimeout: Timeout = Timeout(10, SECONDS),
   rules: Map[String, Rule] = Map.empty,
-  countryList: List[Int] = Nil,
-  hotelList: List[Int] = Nil
+  countries: Set[Int] = Set.empty,
+  hotels: Set[Int] = Set.empty
 )
 
 trait SettingActor {
