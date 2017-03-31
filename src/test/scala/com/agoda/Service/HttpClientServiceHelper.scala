@@ -36,8 +36,8 @@ object HttpClientServiceHelper {
     import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
     val responseCode = StatusCodes.OK
-    val countries = Set(1, 3, 5)
-    val hotels = Set(5, 7, 9)
+    val countries: Set[Int]
+    val hotels: Set[Int]
 
     def localSender: PartialFunction[HttpRequest, Future[HttpResponse]] = {
       case x if x.uri.path.startsWith(Uri.Path("/api/v1/data/countries")) =>

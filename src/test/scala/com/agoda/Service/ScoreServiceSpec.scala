@@ -2,16 +2,17 @@ package com.agoda.Service
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.StatusCodes
-import akka.stream.{Materializer, ActorMaterializer}
+import akka.stream.{ActorMaterializer, Materializer}
 import com.agoda.Setting
 import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute
 import com.agoda.service.HttpClientService.HttpClientFactory
-import com.agoda.service.{HttpClientSingle, ScoreService}
+import com.agoda.service.ScoreService
 import com.agoda.util.Constants
 
 
-class ScoreClient(override val countries: Set[Int] = Set(1, 3, 5))
+class ScoreClient(override val countries: Set[Int] = Set(1, 3, 5),
+  override val hotels: Set[Int] = Set(5, 7, 9))
   (implicit val mat: Materializer, val system: ActorSystem)
   extends HttpClientServiceHelper.RuleServiceHttpClientSenderDummy
 

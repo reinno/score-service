@@ -17,9 +17,11 @@ class DataService extends Actor with ActorLogging with SettingActor {
 
   override def receive: Receive = {
     case GetHotelList =>
+      log.info(s"get hotels: ${settings.hotelList}")
       sender() ! settings.hotelList
 
     case GetCountryList =>
+      log.info(s"get countries: ${settings.countryList}")
       sender() ! settings.countryList
   }
 }

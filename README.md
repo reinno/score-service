@@ -62,7 +62,14 @@ List of structure
 * **Sample Call:**
 
 ```bash
+curl -i  -X POST  -H "Content-Type:application/json" -d '[{"hotelId": 2, "countryId": 2}]' http://127.0.0.1:8002/api/v1/score
+HTTP/1.1 200 OK
+Server: akka-http/2.4.10
+Date: Fri, 31 Mar 2017 10:16:54 GMT
+Content-Type: application/json
+Content-Length: 27
 
+[{"hotelId":2,"score":3.0}]
 ```
 
 ### Rule
@@ -97,7 +104,7 @@ N/A
 * **Sample Call:**
 
 ```bash
-
+curl -i  -X POST  -H "Content-Type:application/json"  http://127.0.0.1:8002/api/v1/rule/special-hotel/enable
 ```
 
 
@@ -131,6 +138,6 @@ N/A
 * **Sample Call:**
 
 ```bash
-
+curl -i  -X POST  -H "Content-Type:application/json"  http://127.0.0.1:8002/api/v1/rule/special-hotel/disable
 ```
 

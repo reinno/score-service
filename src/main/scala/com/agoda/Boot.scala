@@ -8,7 +8,7 @@ import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.agoda.route.ApiRouteService
 import com.agoda.service.HttpClientService.HttpClientFactory
-import com.agoda.service.{HttpClientSingle, ScoreService}
+import com.agoda.service.{DataService, HttpClientSingle, ScoreService}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -24,7 +24,8 @@ object Boot extends App {
   println(setting)
 
   val scoreService = system.actorOf(ScoreService.props(setting), "score-service")
-  val service = new ApiRouteService(scoreService)
+  val dataService = system.actorOf(DataService.props(), "data-service")
+  val service = new ApiRouteService(scoreService, dataService)
 
 
   val bindFuture = Http().bindAndHandle(Route.handlerFlow(service.route),

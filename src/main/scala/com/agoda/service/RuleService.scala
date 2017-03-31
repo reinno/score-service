@@ -15,6 +15,7 @@ object RuleService {
   case class Started(name: String)
   case class StartFailed(name: String)
   case object Refresh
+  case class RefreshData(value: Set[Int])
 
   def props(rule: Rule, next: Option[ActorRef])(implicit mat: Materializer, httpClientFactory: HttpClientFactory): Option[Props] = {
     rule.name match {

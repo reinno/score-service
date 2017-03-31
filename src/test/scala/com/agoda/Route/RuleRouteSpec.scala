@@ -16,7 +16,8 @@ class RuleRouteSpec extends FlatSpec with ScalatestRouteTest with Matchers with 
   implicit val serialization = org.json4s.jackson.Serialization
 
   val scoreService = TestProbe()
-  val service = new ApiRouteService(scoreService.ref)
+  val dataService = TestProbe()
+  val service = new ApiRouteService(scoreService.ref, dataService.ref)
 
   it should "handle enable rule" in {
     for (status <- List(StatusCodes.OK, StatusCodes.NotFound)) {
