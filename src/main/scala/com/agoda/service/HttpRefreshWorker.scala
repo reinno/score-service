@@ -8,6 +8,7 @@ import akka.pattern.pipe
 import akka.stream.Materializer
 import com.agoda.model.Rule
 import com.agoda.service.HttpClientService.HttpClientFactory
+import com.agoda.service.rule.RuleService
 
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.Failure

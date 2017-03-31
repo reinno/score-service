@@ -1,4 +1,4 @@
-package com.agoda.service
+package com.agoda.service.rule
 
 import akka.actor._
 import akka.stream.Materializer

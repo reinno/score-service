@@ -1,10 +1,11 @@
-package com.agoda.service
+package com.agoda.service.rule
 
-import akka.actor.{Cancellable, ActorRef, Props}
+import akka.actor.{ActorRef, Cancellable, Props}
 import akka.stream.Materializer
 import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute.ScoreRequest
 import com.agoda.service.HttpClientService.HttpClientFactory
+import com.agoda.service.HttpRefreshWorker
 
 import scala.concurrent.duration.{Duration, SECONDS}
 

@@ -7,6 +7,7 @@ import com.agoda.Setting
 import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute
 import com.agoda.service.HttpClientService.HttpClientFactory
+import com.agoda.service.rule.RuleService
 
 
 object ScoreService {
