@@ -25,8 +25,6 @@ class HttpClientSingle(implicit val system: ActorSystem, val mat: Materializer) 
     Http().singleRequest(req)
 }
 
-
-
 object HttpClientService {
   type HttpClientFactory = () => HttpClientSender
 }

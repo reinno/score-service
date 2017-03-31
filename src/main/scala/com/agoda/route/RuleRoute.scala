@@ -12,10 +12,6 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 
 import scala.concurrent.ExecutionContext
 
-object RuleRoute {
-  case class Enable(name: String)
-  case class Disable(name: String)
-}
 class RuleRoute(scoreService: ActorRef) (implicit system: ActorSystem, ec: ExecutionContext)
   extends BaseRoute {
   import Json4sSupport._

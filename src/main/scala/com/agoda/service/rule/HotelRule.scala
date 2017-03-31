@@ -29,9 +29,9 @@ class HotelRule(val next: Option[ActorRef], val rule: Rule)
   def init: Receive = {
     case RuleService.Start =>
       getRefresh()
-      val c: Cancellable = context.system.scheduler.scheduleOnce(Duration(2, SECONDS),
+      val timer: Cancellable = context.system.scheduler.scheduleOnce(Duration(2, SECONDS),
         context.self, Timeout)
-      context become initWaitRefresh(c)
+      context become initWaitRefresh(timer)
 
 
     case msg =>
@@ -39,17 +39,17 @@ class HotelRule(val next: Option[ActorRef], val rule: Rule)
       stash()
   }
 
-  def initWaitRefresh(c: Cancellable): Receive = {
-    case Timeout =>
-      context.parent ! RuleService.StartFailed(rule.name)
-      context stop self
-
+  def initWaitRefresh(timer: Cancellable): Receive = {
     case RuleService.RefreshData(value) =>
       specialHotels = value
       context.parent ! RuleService.Started(rule.name)
-      c.cancel()
+      timer.cancel()
       unstashAll()
       context become running
+
+    case Timeout =>
+      context.parent ! RuleService.StartFailed(rule.name)
+      context stop self
 
     case msg =>
       log.info(s"stash msg: $msg")

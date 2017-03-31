@@ -14,8 +14,6 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 object BaseRoute {
-  case class FailureResponse(code: StatusCode, message: Option[String] = None)
-
   def askActorRoute[T](actor: ActorRef, msg: Any)
     (implicit exec: ExecutionContext, _marshaller: ToResponseMarshaller[T], timeout: Timeout): Route = {
     onComplete(ActorUtil.askActor[T](actor, msg)) {

@@ -1,18 +1,18 @@
 package com.agoda.service
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.agoda.SettingActor
+import com.agoda.{Setting, SettingActor}
 
 object DataService {
   case object GetHotelList
   case object GetCountryList
 
-  def props(): Props = {
-    Props(new DataService())
+  def props(settings: Setting): Props = {
+    Props(new DataService(settings))
   }
 }
 
-class DataService extends Actor with ActorLogging with SettingActor {
+class DataService(settings: Setting) extends Actor with ActorLogging {
   import DataService._
 
   override def receive: Receive = {

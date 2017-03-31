@@ -19,17 +19,17 @@ object Boot extends App {
   implicit val mat = ActorMaterializer()
   implicit val httpClientFactory: HttpClientFactory = () => new HttpClientSingle()
 
-  val setting = Setting(system)
+  val settings = Setting(system)
 
-  println(setting)
+  println(settings)
 
-  val scoreService = system.actorOf(ScoreService.props(setting), "score-service")
-  val dataService = system.actorOf(DataService.props(), "data-service")
+  val scoreService = system.actorOf(ScoreService.props(settings), "score-service")
+  val dataService = system.actorOf(DataService.props(settings), "data-service")
   val service = new ApiRouteService(scoreService, dataService)
 
 
   val bindFuture = Http().bindAndHandle(Route.handlerFlow(service.route),
-    setting.bindAddr, setting.bindPort)
+    settings.bindAddr, settings.bindPort)
 
   Await.result(bindFuture, 15.seconds)
   Await.result(system.whenTerminated, Duration.Inf)

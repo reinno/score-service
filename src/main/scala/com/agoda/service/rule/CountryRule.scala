@@ -10,9 +10,6 @@ import com.agoda.service.HttpRefreshWorker
 import scala.concurrent.duration.{Duration, SECONDS}
 
 
-
-
-
 object CountryRule {
 
   case object Timeout
@@ -37,23 +34,22 @@ class CountryRule(val next: Option[ActorRef], val rule: Rule)
         context.self, Timeout)
       context become initWaitRefresh(c)
 
-
     case msg =>
       log.info(s"stash msg: $msg")
       stash()
   }
 
   def initWaitRefresh(c: Cancellable): Receive = {
-    case Timeout =>
-      context.parent ! RuleService.StartFailed(rule.name)
-      context stop self
-
     case RuleService.RefreshData(value) =>
       specialCountries = value
       context.parent ! RuleService.Started(rule.name)
       c.cancel()
       unstashAll()
       context become running
+
+    case Timeout =>
+      context.parent ! RuleService.StartFailed(rule.name)
+      context stop self
 
     case msg =>
       log.info(s"stash msg: $msg")

@@ -35,7 +35,7 @@ class HttpRefreshWorker(rule: Rule)(implicit mat: Materializer, httpClientFactor
   import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
   import context.dispatcher
 
-  implicit val httpClient = httpClientFactory()
+  implicit val httpClient: HttpClientSender = httpClientFactory()
 
   log.info(s"send request to ${rule.endpoint}")
   httpClient.sendHttpReq(HttpRequest(GET, uri = rule.endpoint)) pipeTo self
