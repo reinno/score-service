@@ -100,6 +100,8 @@ dates.
 
 Unit test also use http client mock to test the behaves of rule actors.
 
+Use single actor for one rule now, it can be extended to router-routee model if needed. 
+
 
 
 ## Restful API

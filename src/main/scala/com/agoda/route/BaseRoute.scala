@@ -3,7 +3,6 @@ package com.agoda.route
 
 import akka.actor.ActorRef
 import akka.http.scaladsl.marshalling.ToResponseMarshaller
-import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
@@ -32,10 +31,11 @@ trait BaseRoute {
   implicit val serialization = org.json4s.jackson.Serialization
 
   protected def doRoute(implicit mat: Materializer): Route
+
   protected def prefix = Slash ~ "api" / "v1"
 
   def route: Route = encodeResponse {
-    extractMaterializer {implicit mat =>
+    extractMaterializer { implicit mat =>
       rawPathPrefix(prefix) {
         doRoute(mat)
       }

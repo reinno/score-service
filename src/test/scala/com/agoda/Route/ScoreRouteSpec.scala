@@ -13,7 +13,9 @@ import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 
 
 class ScoreRouteSpec extends FlatSpec with ScalatestRouteTest with Matchers with BeforeAndAfterAll {
+
   import Json4sSupport._
+
   implicit val formats = org.json4s.DefaultFormats
   implicit val serialization = org.json4s.jackson.Serialization
 

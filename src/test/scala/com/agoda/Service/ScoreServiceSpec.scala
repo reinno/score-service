@@ -195,5 +195,18 @@ class ScoreServiceSpec extends BaseServiceHelper.TestSpec {
 
       system.stop(scoreService)
     }
+
+    "init timeout" in {
+      class ScoreTimeoutClient(override val httpLatency: Int = 55000) extends ScoreClient
+
+      implicit val httpClientFactory: HttpClientFactory = () => new ScoreTimeoutClient()
+
+      val scoreService = system.actorOf(ScoreService.props(Setting(rules = baseCountryRule)))
+
+      scoreService ! ScoreService.GetScoreRequest(List(ScoreRoute.ScoreRequest(hotelRuleData.normalId, countryRuleData.specialId)))
+      expectMsg(Duration(7, SECONDS), List(ScoreRoute.ScoreResponse(hotelRuleData.normalId, 0)))
+
+      system.stop(scoreService)
+    }
   }
 }

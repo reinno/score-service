@@ -1,10 +1,10 @@
 package com.agoda.service
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.{HttpsConnectionContext, Http}
-import akka.http.scaladsl.model.{HttpResponse, HttpRequest}
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.stream.Materializer
-import org.json4s.{jackson, DefaultFormats}
+import org.json4s.{DefaultFormats, jackson}
 
 import scala.concurrent.Future
 

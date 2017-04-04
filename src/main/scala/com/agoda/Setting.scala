@@ -11,7 +11,7 @@ import scala.concurrent.duration.{Duration, SECONDS}
 object Setting {
 
   def getRule(params: Config): (String, Rule) = {
-    val rule = Rule (
+    val rule = Rule(
       name = params.getString("name"),
       score = params.getDouble("score"),
       refreshInterval = Duration(params.getDuration("refreshInterval", SECONDS), SECONDS),

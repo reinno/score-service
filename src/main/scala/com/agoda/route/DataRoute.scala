@@ -13,8 +13,9 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import scala.concurrent.ExecutionContext
 
 
-class DataRoute(dataService: ActorRef) (implicit system: ActorSystem, ec: ExecutionContext)
+class DataRoute(dataService: ActorRef)(implicit system: ActorSystem, ec: ExecutionContext)
   extends BaseRoute {
+
   import Json4sSupport._
 
   val setting = Setting(system)

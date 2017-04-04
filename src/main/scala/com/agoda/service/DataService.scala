@@ -4,9 +4,13 @@ import akka.actor.{Actor, ActorLogging, Props}
 import com.agoda.Setting
 
 object DataService {
+
   case object GetHotels
+
   case class SetHotels(hotels: Set[Int])
+
   case object GetCountries
+
   case class SetCountries(countries: Set[Int])
 
   def props(settings: Setting): Props = {
@@ -15,6 +19,7 @@ object DataService {
 }
 
 class DataService(settings: Setting) extends Actor with ActorLogging {
+
   import DataService._
 
   var hotels: Set[Int] = settings.hotels

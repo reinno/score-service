@@ -1,8 +1,9 @@
 package com.agoda.route
 
 import akka.actor.{ActorRef, ActorSystem}
-import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+
 import scala.concurrent.ExecutionContext
 
 trait ApiRoute {
@@ -15,6 +16,7 @@ trait ApiRoute {
   val scoreRoute = new ScoreRoute(scoreService)
   val ruleRoute = new RuleRoute(scoreService)
   val dataRoute = new DataRoute(dataService)
+
   def route: Route = scoreRoute.route ~ ruleRoute.route ~ dataRoute.route
 }
 

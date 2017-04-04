@@ -11,9 +11,13 @@ import com.agoda.service.rule.RuleService
 
 
 object ScoreService {
+
   case object Start
+
   case class Enable(ruleName: String)
+
   case class Disable(ruleName: String)
+
   case class GetScoreRequest(requests: List[ScoreRoute.ScoreRequest])
 
   def props(settings: Setting)
@@ -24,6 +28,7 @@ object ScoreService {
 
 class ScoreService(settings: Setting)
   (implicit mat: Materializer, httpClientFactory: HttpClientFactory) extends Actor with ActorLogging with Stash {
+
   import ScoreService._
 
   var ruleActorHeader: Option[ActorRef] = None

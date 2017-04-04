@@ -3,6 +3,7 @@ package com.agoda.util
 import scala.concurrent.duration.{Duration, SECONDS}
 
 object Constants {
+
   object Rules {
     val countryRule = "special-country"
     val hotelRule = "special-hotel"

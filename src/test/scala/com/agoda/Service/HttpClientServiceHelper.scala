@@ -7,12 +7,13 @@ import akka.stream.Materializer
 import com.agoda.service.HttpClientSender
 import org.scalatest.Matchers
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 
 object HttpClientServiceHelper {
 
 
   trait HttpClientSenderDummy extends HttpClientSender with Matchers {
+
     import system.dispatcher
 
     implicit val formats = org.json4s.DefaultFormats
@@ -32,8 +33,9 @@ object HttpClientServiceHelper {
 
   trait RuleServiceHttpClientSenderDummy extends HttpClientSenderDummy {
     self: HttpClientSenderDummy =>
-    import system.dispatcher
+
     import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+    import system.dispatcher
 
     val responseCode: StatusCode = StatusCodes.OK
     val countries: Set[Int]
@@ -43,19 +45,22 @@ object HttpClientServiceHelper {
     def localSender: PartialFunction[HttpRequest, Future[HttpResponse]] = {
       case x if x.uri.path.startsWith(Uri.Path("/api/v1/data/countries")) =>
         val f = Marshal(countries).to[ResponseEntity]
-        f.map(x => HttpResponse(status = responseCode, entity = x.withContentType(ContentTypes.`application/json`))).map{x =>
+        f.map(x => HttpResponse(status = responseCode, entity = x.withContentType(ContentTypes.`application/json`))).map { x =>
           Thread.sleep(httpLatency)
-          x}
+          x
+        }
 
       case x if x.uri.path.startsWith(Uri.Path("/api/v1/data/hotels")) =>
         val f = Marshal(hotels).to[ResponseEntity]
-        f.map(x => HttpResponse(status = responseCode, entity = x.withContentType(ContentTypes.`application/json`))).map{x =>
+        f.map(x => HttpResponse(status = responseCode, entity = x.withContentType(ContentTypes.`application/json`))).map { x =>
           Thread.sleep(httpLatency)
-          x}
+          x
+        }
     }
 
     override def sendPartial: PartialFunction[HttpRequest, Future[HttpResponse]] = {
       localSender.orElse(super.sendPartial)
     }
   }
+
 }
