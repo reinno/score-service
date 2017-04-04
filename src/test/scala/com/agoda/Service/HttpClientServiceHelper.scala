@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import com.agoda.service.HttpClientSender
 import org.scalatest.Matchers
 
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 
 object HttpClientServiceHelper {
 
@@ -35,18 +35,23 @@ object HttpClientServiceHelper {
     import system.dispatcher
     import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
-    val responseCode = StatusCodes.OK
+    val responseCode: StatusCode = StatusCodes.OK
     val countries: Set[Int]
     val hotels: Set[Int]
+    val httpLatency = 0
 
     def localSender: PartialFunction[HttpRequest, Future[HttpResponse]] = {
       case x if x.uri.path.startsWith(Uri.Path("/api/v1/data/countries")) =>
         val f = Marshal(countries).to[ResponseEntity]
-        f.map(x => HttpResponse(status = responseCode, entity = x.withContentType(ContentTypes.`application/json`)))
+        f.map(x => HttpResponse(status = responseCode, entity = x.withContentType(ContentTypes.`application/json`))).map{x =>
+          Thread.sleep(httpLatency)
+          x}
 
       case x if x.uri.path.startsWith(Uri.Path("/api/v1/data/hotels")) =>
         val f = Marshal(hotels).to[ResponseEntity]
-        f.map(x => HttpResponse(status = responseCode, entity = x.withContentType(ContentTypes.`application/json`)))
+        f.map(x => HttpResponse(status = responseCode, entity = x.withContentType(ContentTypes.`application/json`))).map{x =>
+          Thread.sleep(httpLatency)
+          x}
     }
 
     override def sendPartial: PartialFunction[HttpRequest, Future[HttpResponse]] = {

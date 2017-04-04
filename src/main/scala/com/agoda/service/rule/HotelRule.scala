@@ -6,6 +6,7 @@ import com.agoda.model.Rule
 import com.agoda.route.ScoreRoute.ScoreRequest
 import com.agoda.service.HttpClientService.HttpClientFactory
 import com.agoda.service.HttpRefreshWorker
+import com.agoda.util.Constants
 
 import scala.concurrent.duration.{Duration, SECONDS}
 
@@ -29,7 +30,7 @@ class HotelRule(val next: Option[ActorRef], val rule: Rule)
   def init: Receive = {
     case RuleService.Start =>
       getRefresh()
-      val timer: Cancellable = context.system.scheduler.scheduleOnce(Duration(2, SECONDS),
+      val timer: Cancellable = context.system.scheduler.scheduleOnce(Constants.Rules.initTimeout,
         context.self, Timeout)
       context become initWaitRefresh(timer)
 
