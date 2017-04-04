@@ -228,3 +228,10 @@ N/A
 curl -i  -X POST  -H "Content-Type:application/json"  http://127.0.0.1:8002/api/v1/rule/special-hotel/disable
 ```
 
+
+## Test
+```bash
+echo '[{"hotelId": 3, "countryId": 2}]' > post.json
+ab  -l -n 10000 -c 100  -T 'application/json' -p post.json http://127.0.0.1:8002/api/v1/score
+```
+
