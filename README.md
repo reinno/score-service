@@ -98,9 +98,12 @@ java -jar ./target/scala-2.11/score-service-1.0.jar
 Use a local http service simulate outside resources, hotel and country rule will send http request to refresh new
 dates.
 
-Unit test also use http client mock to test the behaves of rule actors.
+Unit test also use http client mock to test behaves of rule actors.
 
 Use single actor for one rule now, it can be extended to router-routee model if needed. 
+
+
+To make it simple, if there is no rule is used, score will be 0.
 
 
 
@@ -230,7 +233,20 @@ curl -i  -X POST  -H "Content-Type:application/json"  http://127.0.0.1:8002/api/
 
 
 ## Test
-```bash
+```bash 
+sbt assembly
+java -jar ./target/scala-2.11/score-service-1.0.jar
+curl -i  -X POST  -H "Content-Type:application/json" -d '[{"hotelId": 1, "countryId": 2}]' http://127.0.0.1:8002/api/v1/score
+curl -i  -X POST  -H "Content-Type:application/json" -d '[101, 102, 103]' http://127.0.0.1:8002/api/v1/data/hotels
+curl -i  -X POST  -H "Content-Type:application/json" -d '[{"hotelId": 1, "countryId": 2}]' http://127.0.0.1:8002/api/v1/score
+curl -i  -X POST  -H "Content-Type:application/json" -d '[{"hotelId": 101, "countryId": 2}]' http://127.0.0.1:8002/api/v1/score
+curl -i  -X POST  -H "Content-Type:application/json"  http://127.0.0.1:8002/api/v1/rule/special-hotel/disable
+curl -i  -X POST  -H "Content-Type:application/json" -d '[{"hotelId": 101, "countryId": 2}]' http://127.0.0.1:8002/api/v1/score
+curl -i  -X POST  -H "Content-Type:application/json"  http://127.0.0.1:8002/api/v1/rule/special-hotel/enable
+curl -i  -X POST  -H "Content-Type:application/json" -d '[{"hotelId": 101, "countryId": 2}]' http://127.0.0.1:8002/api/v1/score
+
+
+## benchmark
 echo '[{"hotelId": 3, "countryId": 2}]' > post.json
 ab  -l -n 10000 -c 100  -T 'application/json' -p post.json http://127.0.0.1:8002/api/v1/score
 ```
