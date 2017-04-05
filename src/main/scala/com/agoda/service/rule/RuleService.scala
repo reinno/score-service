@@ -51,14 +51,8 @@ trait RuleService extends Actor with ActorLogging with Stash {
   var enabled: Boolean = rule.enabled
 
   def getScore(req: ScoreRoute.ScoreRequest): Double
-
   def getRefresh(): Unit
-
   def refresh(data: RefreshData): Unit
-
-  context.system.scheduler.schedule(rule.refreshInterval,
-    rule.refreshInterval,
-    context.self, Refresh)
 
   def init: Receive = {
     case RuleService.Start =>
@@ -77,6 +71,9 @@ trait RuleService extends Actor with ActorLogging with Stash {
       refresh(msg)
       context.parent ! RuleService.Started(rule.name)
       c.cancel()
+      context.system.scheduler.schedule(rule.refreshInterval,
+        rule.refreshInterval,
+        context.self, Refresh)
       unstashAll()
       context become running
 

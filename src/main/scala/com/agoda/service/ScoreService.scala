@@ -9,6 +9,8 @@ import com.agoda.route.ScoreRoute
 import com.agoda.service.HttpClientService.HttpClientFactory
 import com.agoda.service.rule.RuleService
 
+import scala.annotation.tailrec
+
 
 object ScoreService {
 
@@ -87,6 +89,7 @@ class ScoreService(settings: Setting)
     }
   }
 
+  @tailrec
   private def startNewRuleService(rulesToBeStarted: Map[String, Rule],
     lastStarted: Option[ActorRef]): Unit = {
     if (rulesToBeStarted.nonEmpty) {
